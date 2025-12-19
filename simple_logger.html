@@ -1,0 +1,110 @@
+<html>
+    <head>
+        <title>ログ管理ツール</title>
+        <style>
+            h1 {
+                font-size: 26px;
+                font-weight: bold;
+            }
+            button {
+                padding: 18px;
+                font-size: 18px;
+            }
+            .status.label {
+                display: inline-block;
+                padding: 5px;
+            }
+            .status.input {
+                font-size: 18px;
+            }
+        </style>
+        <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    </head>
+    <body>
+        <h1>PCログ・出退勤管理ツール</h1>
+        <button id="w_start">出勤</button>
+        <button id="w_end">退勤</button>
+        <div class="status">
+            <p>仕事できそう？</p>
+            <label><input type="radio" name="motibation" value="bad">微妙</label>
+            <label><input type="radio" name="motibation" value="good">普通</label>
+            <label><input type="radio" name="motibation" value="great">バリバリ</label>
+        </div>
+        <button id="log_export">エクスポート</button>
+        <button id="log_delete">ログリセット</button>
+        <script>
+            var system = new Date();
+            var status_warning = 0;
+            document.addEventListener('DOMContentLoaded', event => {
+                var date = system.getUTCMonth()+1 + "月" + system.getDate() + "日";
+                let data = JSON.parse(localStorage.getItem("log"));
+                button_start = document.getElementById("w_start");
+                button_end = document.getElementById("w_end");
+                button_export = document.getElementById("log_export");
+                button_reset = document.getElementById("log_delete");
+
+                button_start.addEventListener('click', function(){
+                    const b_time = Date.now();
+                    const w_start = new Date(b_time);
+                    var checkbox = document.getElementsByName("motibation");
+                    var checked = '';
+                    for(let i=0;i<3;i++){
+                        if(checkbox.item(i).checked){
+                            checked = i;
+                        }
+                    }
+                    let add_data = {
+                        date: date,
+                        status: "出勤",
+                        time: w_start.getHours() + ":" + w_start.getMinutes(),
+                        motibation: checkbox.item(checked).value,
+                        alert: "ご安全に"
+                    };
+                    if(w_start - system >= 300000){
+                        add_data.alert = "前兆あり";
+                    }
+                    data.push(add_data);
+                    var saveData = JSON.stringify(data, null, 2);
+                    localStorage.setItem("log", saveData);
+                    console.log(localStorage.getItem("log"));
+                });
+                button_end.addEventListener('click', function(){
+                    const b_time = Date.now();
+                    const w_end = new Date(b_time);
+                    var checkbox = document.getElementsByName("motibation");
+                    var checked = '';
+                    for(let i=0;i<3;i++){
+                        if(checkbox.item(i).checked){
+                            checked = i;
+                        }
+                    }
+                    var add_data = {
+                        date : date,
+                        status : "退勤",
+                        time : w_end.getHours() + ":" + w_end.getMinutes(),
+                        motibation : checkbox.item(checked).value,
+                        alert : "帰宅"
+                    }
+                    data.push(add_data);
+                    var saveData = JSON.stringify(data, null, 2);
+                    localStorage.setItem("log", saveData);
+                    console.log(localStorage.getItem("log"));
+                });
+                button_export.addEventListener('click', function(){
+                    var blob = new Blob([JSON.stringify(localStorage.getItem("log"))], {"type" : "application/json"});
+                    var a = document.createElement('a');
+                    a.style.display = 'none';
+                    a.href = window.URL.createObjectURL(blob);
+                    a.download = 'data.json';
+
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                });
+                button_reset.addEventListener('click', function(){
+                    localStorage.setItem("log", "[]");
+                });
+            });
+        </script>
+    </body>
+</html>

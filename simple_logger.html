@@ -37,7 +37,7 @@
             var status_warning = 0;
             document.addEventListener('DOMContentLoaded', event => {
                 var date = system.getUTCMonth()+1 + "月" + system.getDate() + "日";
-                let data = JSON.parse(localStorage.getItem("log"));
+                let data = JSON.parse(localStorage.getItem("log")) || [];
                 button_start = document.getElementById("w_start");
                 button_end = document.getElementById("w_end");
                 button_export = document.getElementById("log_export");
@@ -102,7 +102,7 @@
                     document.body.removeChild(a);
                 });
                 button_reset.addEventListener('click', function(){
-                    localStorage.setItem("log", "[]");
+                    localStorage.removeItem("log");
                 });
             });
         </script>
